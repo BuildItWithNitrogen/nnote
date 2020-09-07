@@ -6,23 +6,17 @@
 %% ***************************************************
 %% Macros
 %% ***************************************************
--define(TEMPLATE,"./site/templates/n_apps.html").
 -define(MMSELECTED, "home").
 -define(TITLE, "Welcome!").
 -define(TOP, "Build it with Nitrogen").
--define(UVARS, [id, note_type, task]).
-
-%% ***************************************************
-%% Page state functions
-%% ***************************************************
-get_page_vars() ->
-    wf:q_map(?UVARS).
+url_vars() -> [id, note_type, task].
 
 %% ***************************************************
 %% Template and Title
 %% ***************************************************
 
-main() -> #template { file="./site/templates/n_apps.html" }.
+main() ->
+    n_common:template().
 
 title() ->
     ?TITLE.
@@ -35,20 +29,7 @@ top() ->
     #h1 {text=?TOP}.
 
 main_menu() ->
-    #panel{id=main_menu, body=
-        n_menus:show_main_menu(?MMSELECTED)
-    }.
-
-sidebar() ->
-    Vars = get_page_vars(),
-    #panel{id=sidebar, body=sidebar(Vars)}.
-
-content() ->
-    Vars = get_page_vars(),
-    [
-     #flash{},
-     #panel{id=content, body=content(Vars)}
-    ].
+    n_menus:show_main_menu(?MMSELECTED).
 
 content(#{}) ->
     greeting().
