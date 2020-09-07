@@ -55,27 +55,30 @@ tips() ->
 %% ***************************************************
 %% Sidebar menus
 %% ***************************************************
-side_menu("WEB SITE") ->
-    [{"nitrogen", {goto,
-                   "http://nitrogenproject.com/"}},
-     {"erlang", {goto,
-                 "http://erlang.org/doc/apps/stdlib/"}},
-     {"hacker news", {goto,
-                      "https://news.ycombinator.com/"}}
+side_menu("NOTE TYPE") ->
+    [{"conference", {select,"conference"}},
+     {"idea",       {select,"idea"}},
+     {"interview",  {select,"interview"}},
+     {"lab",        {select,"lab"}},
+     {"lecture",    {select,"lecture"}},
+     {"research",   {select,"research"}},
+     {"web",        {select,"web"}}
     ].
 
 %% ***************************************************
 %% Sidebar events
 %% ***************************************************
-event({goto, Link}) ->
-    wf:redirect(Link).
+event({select, NoteType}) ->
+    Redirect = [wf:path(), "?",
+                wf:to_qs([ {note_type, NoteType} ]) ],
+    wf:redirect(Redirect).
 
 %% ***************************************************
 %% Sidebar executives
 %% ***************************************************
-sidebar(#{}) ->
+sidebar(#{note_type:=NoteType}) ->
     [ #h3 {text="SELECT"},
-      show_side_menu("WEB SITE", unselected)
+      show_side_menu("NOTE TYPE", NoteType)
     ].
 
 %% ***************************************************
