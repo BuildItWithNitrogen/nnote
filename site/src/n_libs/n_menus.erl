@@ -37,11 +37,26 @@ if_selected(Text, Selected) ->
 %% Main menu events
 %% ***************************************************
 event(tips) ->
-    ok;
+    Mod = wf:page_module(),
+    Tips = Mod:tips(),
+    wf:flash(Tips);
 event(logout) ->
     wf:logout(),
     wf:redirect("/");
 event(URL) ->
     wf:redirect(URL).
+
+%% ***************************************************
+%% Sidebar menus
+%% ***************************************************
+show_menu_item(MenuItem, Selected) ->
+    {Text, Postback} = MenuItem,
+    [#radio{name=side_menu_item,
+            text=Text,
+            checked = (Text==Selected),
+            value=Text,
+            postback=Postback
+           },
+     #br{}].
 
 
