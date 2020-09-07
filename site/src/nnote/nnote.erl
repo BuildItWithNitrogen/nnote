@@ -92,7 +92,11 @@ search_by_tag() ->
 
  search_by_date() ->
      io:format("Search by date~n"),
-     [].
+     [ #label{text="enter date"},
+       n_dates:datepicker(search_date, ""),
+       #button{text="Search", postback=search_by_date},
+       #button{text="Info", postback={info, search_by_date}}
+     ].
 
 %% ***************************************************
 %% Tips
@@ -113,6 +117,10 @@ tips() ->
 info(search_by_tag) ->
     [ #h2{body=["<i>Search Words</i>"]},
       #p{text=["Search word documentation goes here"]}
+    ];
+info(search_by_date) ->
+    [ #h2{body="<i>Search Date</i>"},
+      #p{text="Search date documentation goes here"}
     ].
 
 
@@ -133,6 +141,10 @@ side_menu("NOTE TYPE") ->
 event(search_by_tag) ->
     NoteType = wf:q(note_type),
     Content = content(#{note_type=>NoteType, task=>search_by_tag}),
+    wf:update(content, Content);
+event(search_by_date) ->
+    NoteType = wf:q(note_type),
+    Content = content(#{note_type=>NoteType, task=>search_by_date}),
     wf:update(content, Content);
 %% ***************************************************
 %% Info events
