@@ -32,11 +32,67 @@ top() ->
 main_menu() ->
     n_menus:show_main_menu(?MMSELECTED).
 
-content(#{}) ->
-    content_headline().
+content(#{note_type:=undefined, task:=undefined}) ->
+    [content_headline(),
+     #p{text="Select note type."}
+    ];
+content(#{note_type:=NoteType, task:=Task}) ->
+    Records = case Task of
+                  undefined -> undefined;
+                  search_by_tag -> tag_search(NoteType);
+                  search_by_date -> date_search(NoteType)
+              end,
+    display_forms(NoteType, Records).
+
+tag_search(NoteType) ->
+    [].
+date_search(NoteType) ->
+    [].
+
+search_results(undefined) ->
+    [];
+search_results([]) ->
+    [#hr{},
+     #h2{text="Search Results"},
+     #p{text="No notes found"}
+    ];
+search_results(Records) ->
+    [#hr{},
+     #h2{text="Search Results"},
+     [n_utils:draw_link(Record) || Record <- Records]
+    ].
+
+
+%% ***************************************************
+%% Content
+%% ***************************************************
+display_forms(NoteType, Records) ->
+    [content_headline(),
+     add_note_button(NoteType),
+     search_by_tag(),
+     search_by_date(),
+     search_results(Records)
+    ].
+
+
 
 content_headline() ->
-    [#h2 {class=content, text="My Notes"}].
+    [#h2{class=content, text="My Notes"}].
+
+add_note_button(NoteType) ->
+    ButtonText = ["Enter new ",NoteType," note"],
+    #button{text=ButtonText, postback={add_note, NoteType}}.
+
+search_by_tag() ->
+    [#label{text="enter search words"},
+     #textbox{id=search_words},
+     #button{text="Search", postback=search_by_tag},
+     #button{text="Info", postback={info, search_by_tag}}
+    ].
+
+ search_by_date() ->
+     io:format("Search by date~n"),
+     [].
 
 %% ***************************************************
 %% Tips
@@ -49,6 +105,14 @@ tips() ->
          <em>Build it with Nitrogen</em>. These
          applications are available for use and
          modification under the MIT License."}
+    ].
+
+%% ***************************************************
+%% Info
+%% ***************************************************
+info(search_by_tag) ->
+    [ #h2{body=["<i>Search Words</i>"]},
+      #p{text=["Search word documentation goes here"]}
     ].
 
 
@@ -65,6 +129,16 @@ side_menu("NOTE TYPE") ->
      {"web",        {select,"web"}}
     ].
 
+
+event(search_by_tag) ->
+    NoteType = wf:q(note_type),
+    Content = content(#{note_type=>NoteType, task=>search_by_tag}),
+    wf:update(content, Content);
+%% ***************************************************
+%% Info events
+%% ***************************************************
+event({info, Function}) ->
+    wf:flash(info(Function));
 %% ***************************************************
 %% Sidebar events
 %% ***************************************************
