@@ -1,6 +1,7 @@
 %% -*- mode: nitrogen -*-
 -module (nindex).
 -compile(export_all).
+-behavior(n_apps).
 -include_lib("nitrogen_core/include/wf.hrl").
 
 %% ***************************************************
