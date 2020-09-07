@@ -88,4 +88,33 @@ a:hover, a:active {
     text-decoration: underline; 
 }
 
+a.mm:link {
+	font-size: 140%;
+	text-decoration: none;
+	color: #666666;
+}
+a.mm:visited {
+	color: #666666;
+}
+a.mm:hover {
+	text-decoration: none;
+	color: black;
+}
+
+a.mmselected {
+	font-size: 140%;
+	text-decoration: underline;
+	color: black;
+}
+
+a.mmselected, a.mm {
+	display: inline-block;
+	padding-left: 15px;
+	padding-right: 15px;
+	border-right: 1px solid black;
+}
+a.mmselected:last-child, a.mm:last-child {
+	border-right: none;
+}
+
 
