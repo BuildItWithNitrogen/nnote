@@ -111,3 +111,44 @@ populate_record([Id, User_id, Type, Date, Event, Source,
            tags = Tags,
            note = Note
           }.
+
+get_records_by_type(UserID, Type) ->
+    Query =
+        fun() ->
+            qlc:eval( qlc:q(
+                        [Record || Record <- mnesia:table(?TABLE),
+                                   Record#nnote.id == UserID,
+                                   Record#nnote.type == Type]
+                       ))
+        end,
+    {atomic, Results} = mnesia:transaction(Query),
+    Results.
+
+get_records_by_date(UserID, Type, Date) ->
+    DateTime = qdate:to_date(Date),
+    {FirstDate, LastDate} = n_dates:date_span(DateTime, 7),
+    Query =
+        fun() ->
+            qlc:eval( qlc:q(
+                        [Record || Record <- mnesia:table(?TABLE),
+                                   qdate:between(FirstDate, Record#nnote.date, LastDate),
+                                   Record#nnote.user_id == UserID,
+                                   Record#nnote.type >= Type
+                        ]))
+        end,
+
+    {atomic, Results} = mnesia:transaction(Query),
+    Results.
+
+search(UserID, NoteType, SearchList) ->
+    Query =
+        fun() ->
+            qlc:eval( qlc:q(
+                        [Record || Record <- mnesia:table(?TABLE),
+                                   Record#nnote.user_id == UserID,
+                                   Record#nnote.type == NoteType,
+                                   n_search:filter(SearchList, Record)]
+                       ))
+        end,
+    {atomic, Results} = mnesia:transaction(Query),
+    Results.
