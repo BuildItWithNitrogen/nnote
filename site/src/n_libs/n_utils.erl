@@ -1,4 +1,5 @@
 -module(n_utils).
+-include_lib("nitrogen_core/include/wf.hrl").
 -compile(export_all).
 
 get_nickname() -> "Marsha".
@@ -48,4 +49,23 @@ synthesize_populate_record(Record, FieldList) ->
     Body = to_function_body(Record, FieldList),
     io:format("~s~n~s~n", [Head, Body]).
 
-
+draw_link(Record) ->
+    ID = nnote_api:id(Record),
+    NoteType = nnote_api:type(Record),
+    Date = nnote_api:date(Record),
+    Topic = nnote_api:topic(Record),
+    EditUrl = ["/nnote/add_edit?",
+               wf:to_qs([{id, ID}, {note_type, NoteType}])],
+    Menuid = wf:temp_id(),
+    [
+     #link {
+        body = [Date, " ", "&#8212;", " ", Topic],
+        click=#toggle{target=Menuid}
+     },
+     #panel{id=Menuid, style="display:none", body=[
+        #link {text="edit", url=EditUrl},
+        " | ",
+        #link {text="delete", postback={delete, ID}}
+          ]},
+     #br{}
+    ].
