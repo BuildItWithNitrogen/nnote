@@ -159,9 +159,13 @@ side_menu("NOTE TYPE") ->
 %% ***************************************************
 save(ID, UserID, NoteType) ->
     Params = wf:mq([date, event, source, topic, question, tags, note]),
-    Params2 = [ID, UserID, NoteType | Params],
+    Params2 = [UserID, NoteType | Params],
     Record = nnote_api:populate_record(Params2),
-    nnote_api:put_record(Record),
+    Record2 = case ID of
+        "new" -> Record;
+        _ -> nnote_api:id(Record, ID)
+    end,
+    nnote_api:put_record(Record2),
     Redirect = ["/nnote", "?",
                 wf:to_qs([{note_type, NoteType} ]) ],
     wf:redirect(Redirect).

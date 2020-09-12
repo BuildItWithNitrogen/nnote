@@ -98,9 +98,9 @@ delete(Key) ->
     Results.
 
 
-populate_record([Id, User_id, Type, Date, Event, Source,
+populate_record([User_id, Type, Date, Event, Source,
                  Topic, Question, Tags, Note]) ->
-    #nnote{id = Id,
+    #nnote{
            user_id = User_id,
            type = Type,
            date = Date,
