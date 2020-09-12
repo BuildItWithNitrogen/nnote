@@ -152,3 +152,39 @@ search(UserID, NoteType, SearchList) ->
         end,
     {atomic, Results} = mnesia:transaction(Query),
     Results.
+
+%% GETTERS
+id(Record) -> Record#nnote.id.
+user_id(Record) -> Record#nnote.user_id.
+date(Record) -> Record#nnote.date.
+type(Record) -> Record#nnote.type.
+event(Record) -> Record#nnote.event.
+source(Record) -> Record#nnote.source.
+topic(Record) -> Record#nnote.topic.
+question(Record) -> Record#nnote.question.
+tags(Record) -> Record#nnote.tags.
+note(Record) -> Record#nnote.note.
+
+%% SETTERS
+id(Record, ID) ->
+    Record#nnote{id=ID}.
+user_id(Record, UserID) ->
+    Record#nnote{user_id=UserID}.
+date(Record, Date) ->
+    Record#nnote{date=Date}.
+type(Record, Type) ->
+    Record#nnote{type=Type}.
+event(Record, Event) ->
+    Record#nnote{event=Event}.
+source(Record, Source) ->
+    Record#nnote{source=Source}.
+topic(Record, Topic) ->
+    Record#nnote{topic=Topic}.
+question(Record, Question) ->
+    Record#nnote{question=Question}.
+tags(Record, Tags) ->
+    Record#nnote{tags=Tags}.
+note(Record, Note) ->
+    Record#nnote{note=Note}.
+
+
