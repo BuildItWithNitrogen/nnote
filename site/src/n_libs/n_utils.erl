@@ -3,6 +3,8 @@
 
 get_nickname() -> "Marsha".
 
+get_user_id() -> "123".
+
 create_id() ->
     Rand = rand:uniform(1000000000),
     Seconds = qdate:unixtime(),

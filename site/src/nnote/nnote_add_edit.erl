@@ -35,11 +35,61 @@ main_menu() ->
 content(#{id:=undefined, note_type:=undefined}) ->
     #h2{class=content, text="My Notes"};
 content(#{id:=ID, note_type:=NoteType}) ->
-    add_edit_form(ID, NoteType).
+    [
+     content_headline(ID, NoteType),
+     add_edit_form(ID, NoteType)
+    ].
 
+content_headline(ID, NoteType) ->
+    Action = case ID of
+        "new" -> "Enter";
+        _ -> "Edit"
+    end,
+    #h2{class=content, text=[Action, " ",string:titlecase(NoteType)," Note"]}.
+
+add_edit_form("new", NoteType) ->
+    UserID = n_utils:get_user_id(),
+    Date = qdate:to_string("Y-m-d"),
+    form("new", UserID, NoteType, Date, "", "", "", "", "", "");
 add_edit_form(ID, NoteType) ->
-    #p{text="In this space soon: One Bodacious
-       Add/Edit Form for nnotes"}.
+    %% We’ll do more here when we set up editing
+    [].
+
+form(ID, UserID, NoteType, Date, Event, Source, Topic,
+     Question, Tags, Note) ->
+    wf:defer(save_note, topic, #validate{validators=[
+        #is_required{text="Topic required"}]}),
+    wf:defer(save_note, note, #validate{validators=[
+        #is_required{text="Note required"}]}),
+    wf:defer(save_note, event, #validate{validators=[
+        #is_required{text="Event required"}]}),
+    wf:defer(save_note, source, #validate{validators=[
+        #is_required{text="Source required"}]}),
+
+    [ #label{text="Date"},
+      n_dates:datepicker(date, Date),
+      #label{text="Event"},
+      #textbox{id=event, text=Event},
+      #label{text="Source"},
+      #textbox{id=source, text=Source},
+      #label{text="Topic"},
+      #textbox{id=topic, text=Topic},
+      #label{text="Question"},
+      #textbox{id=question, text=Question},
+      #label{text="Search Words"},
+      #textbox{id=tags, text=Tags},
+      #label{text="Note"},
+      #textarea{id=note, text=Note},
+      #br{},
+      #button{id=save_note, text=button_text(ID), postback={save_note, ID, UserID, NoteType}},
+      #button{text="Cancel", postback=cancel}
+    ].
+
+%% ***************************************************
+%% Content helpers
+%% ***************************************************
+button_text("new") -> "Enter new note";
+button_text(_ID) -> "Submit changes".
 
 
 %% ***************************************************
