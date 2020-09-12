@@ -146,6 +146,10 @@ event(search_by_date) ->
     NoteType = wf:q(note_type),
     Content = content(#{note_type=>NoteType, task=>search_by_date}),
     wf:update(content, Content);
+event({add_note, NoteType}) ->
+    Redirect=["/nnote/add_edit?",
+              wf:to_qs([{id,"new"}, {note_type,NoteType}])],
+    wf:redirect(Redirect);
 %% ***************************************************
 %% Info events
 %% ***************************************************
