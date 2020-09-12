@@ -52,11 +52,17 @@ add_edit_form("new", NoteType) ->
     Date = qdate:to_string("Y-m-d"),
     form("new", UserID, NoteType, Date, "", "", "", "", "", "");
 add_edit_form(ID, NoteType) ->
-    %% We’ll do more here when we set up editing
-    [].
+    Record = nnote_api:get_record(ID),
+    [ID, UserID, NoteType, Date, Event, Source, Topic,
+     Question, Tags, Note] = nnote_api:get_all_values(Record),
+    form(ID, UserID, NoteType, Date, Event, Source, Topic,
+         Question, Tags, Note).
 
 form(ID, UserID, NoteType, Date, Event, Source, Topic,
      Question, Tags, Note) ->
+    ShowEvent = show_event(NoteType),
+    ShowSource = show_source(NoteType),
+    ShowQuestion = show_question(NoteType),
     wf:defer(save_note, topic, #validate{validators=[
         #is_required{text="Topic required"}]}),
     wf:defer(save_note, note, #validate{validators=[
@@ -68,14 +74,14 @@ form(ID, UserID, NoteType, Date, Event, Source, Topic,
 
     [ #label{text="Date"},
       n_dates:datepicker(date, Date),
-      #label{text="Event"},
-      #textbox{id=event, text=Event},
-      #label{text="Source"},
-      #textbox{id=source, text=Source},
+      #label{text=event_label(NoteType), show_if=ShowEvent},
+      #textbox{id=event, text=Event, show_if=ShowEvent},
+      #label{text=source_label(NoteType), show_if=ShowSource},
+      #textbox{id=source, text=Source, show_if=ShowSource},
       #label{text="Topic"},
       #textbox{id=topic, text=Topic},
-      #label{text="Question"},
-      #textbox{id=question, text=Question},
+      #label{text=question_label(NoteType), show_if=ShowQuestion},
+      #textbox{id=question, text=Question, show_if=ShowQuestion},
       #label{text="Search Words"},
       #textbox{id=tags, text=Tags},
       #label{text="Note"},
@@ -91,6 +97,35 @@ form(ID, UserID, NoteType, Date, Event, Source, Topic,
 button_text("new") -> "Enter new note";
 button_text(_ID) -> "Submit changes".
 
+event_label("conference") -> "conference";
+event_label("lecture") -> "event";
+event_label(_) -> "".
+
+source_label("conference") -> "speaker";
+source_label("idea") -> "";
+source_label("lab") -> "";
+source_label("lecture") -> "speaker";
+source_label("web") -> "URL";
+source_label(_) -> "source".
+
+question_label("conference") -> "";
+question_label("idea") -> "";
+question_label("web") -> "";
+question_label(_) -> "question".
+
+show_event("conference") -> true;
+show_event("lecture") -> true;
+show_event(_) -> false.
+
+show_source("idea") -> false;
+show_source("lab") -> false;
+show_source(_) -> true.
+
+show_question("interview") -> true;
+show_question("lab") -> true;
+show_question("lecture") -> true;
+show_question("research") -> true;
+show_question(_) -> false.
 
 %% ***************************************************
 %% Tips
@@ -119,6 +154,19 @@ side_menu("NOTE TYPE") ->
      {"web",        {select,"web"}}
     ].
 
+%% ***************************************************
+%% Saving Things
+%% ***************************************************
+save(ID, UserID, NoteType) ->
+    Params = wf:mq([date, event, source, topic, question, tags, note]),
+    Params2 = [ID, UserID, NoteType | Params],
+    Record = nnote_api:populate_record(Params2),
+    nnote_api:put_record(Record),
+    Redirect = ["/nnote", "?",
+                wf:to_qs([{note_type, NoteType} ]) ],
+    wf:redirect(Redirect).
+
+
 
 %% ***************************************************
 %% Sidebar events
@@ -126,7 +174,17 @@ side_menu("NOTE TYPE") ->
 event({select, NoteType}) ->
     Redirect = [wf:path(), "?",
                 wf:to_qs([{id, "new"}, {note_type, NoteType} ]) ],
-    wf:redirect(Redirect).
+    wf:redirect(Redirect);
+%% ***************************************************
+%% Save Event
+%% ***************************************************
+event({save_note, ID, UserID, NoteType}) ->
+    wf:wire(#confirm{text="Save?",
+                     postback={confirm_save, ID, UserID, NoteType}});
+event({confirm_save, ID, UserID, NoteType}) ->
+    save(ID, UserID, NoteType);
+event(cancel) ->
+    wf:redirect("/nnote").
 
 %% ***************************************************
 %% Sidebar executives
