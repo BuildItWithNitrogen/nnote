@@ -45,9 +45,14 @@ content(#{note_type:=NoteType, task:=Task}) ->
     display_forms(NoteType, Records).
 
 tag_search(NoteType) ->
-    [].
+    UserID = n_utils:get_user_id(),
+    SearchList = wf:q(search_words),
+    nnote_api:search(UserID, NoteType, SearchList).
+
 date_search(NoteType) ->
-    [].
+    UserID = n_utils:get_user_id(),
+    Date = wf:q(search_date),
+    nnote_api:get_records_by_date(UserID, NoteType, Date).
 
 search_results(undefined) ->
     [];
