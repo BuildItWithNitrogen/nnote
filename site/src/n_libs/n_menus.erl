@@ -49,6 +49,16 @@ event(URL) ->
 %% ***************************************************
 %% Sidebar menus
 %% ***************************************************
+note_type_side_menu() ->
+    [{"conference",{select,"conference"}},
+     {"idea", {select,"idea"}},
+     {"interview", {select,"interview"}},
+     {"lab", {select,"lab"}},
+     {"lecture", {select,"lecture"}},
+     {"research", {select,"research"}},
+     {"web", {select,"web"}}
+    ].
+
 show_menu_item(MenuItem, Selected) ->
     {Text, Postback} = MenuItem,
     [#radio{name=side_menu_item,

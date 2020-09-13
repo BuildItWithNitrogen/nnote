@@ -128,21 +128,6 @@ info(search_by_date) ->
       #p{text="Search date documentation goes here"}
     ].
 
-
-%% ***************************************************
-%% Sidebar menus
-%% ***************************************************
-side_menu("NOTE TYPE") ->
-    [{"conference", {select,"conference"}},
-     {"idea",       {select,"idea"}},
-     {"interview",  {select,"interview"}},
-     {"lab",        {select,"lab"}},
-     {"lecture",    {select,"lecture"}},
-     {"research",   {select,"research"}},
-     {"web",        {select,"web"}}
-    ].
-
-
 event({SearchTask, NoteType}) when SearchTask==search_by_tag;
                                    SearchTask==search_by_date ->
     Records = records_from_task(NoteType, SearchTask),
@@ -178,7 +163,7 @@ sidebar(#{note_type:=NoteType}) ->
 show_side_menu(Menu, Selected) ->
     [ #h4 {class=select, text=Menu},
       [n_menus:show_menu_item(MenuItem, Selected) ||
-       MenuItem <- side_menu(Menu)]
+       MenuItem <- n_menus:note_type_side_menu()]
     ].
 
 
