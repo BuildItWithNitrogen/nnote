@@ -74,8 +74,8 @@ search_results(Records) ->
 display_forms(NoteType, Records) ->
     [content_headline(),
      add_note_button(NoteType),
-     search_by_tag(),
-     search_by_date(),
+     search_by_tag(NoteType),
+     search_by_date(NoteType),
      #panel{id=search_results, body=search_results(Records)}
     ].
 
@@ -88,18 +88,18 @@ add_note_button(NoteType) ->
     ButtonText = ["Enter new ",NoteType," note"],
     #button{text=ButtonText, postback={add_note, NoteType}}.
 
-search_by_tag() ->
+search_by_tag(NoteType) ->
     [#label{text="enter search words"},
      #textbox{id=search_words},
-     #button{text="Search", postback=search_by_tag},
+     #button{text="Search", postback={search_by_tag, NoteType}},
      #button{text="Info", postback={info, search_by_tag}}
     ].
 
- search_by_date() ->
+ search_by_date(NoteType) ->
      io:format("Search by date~n"),
      [ #label{text="enter date"},
        n_dates:datepicker(search_date, ""),
-       #button{text="Search", postback=search_by_date},
+       #button{text="Search", postback={search_by_date, NoteType}},
        #button{text="Info", postback={info, search_by_date}}
      ].
 
@@ -143,9 +143,8 @@ side_menu("NOTE TYPE") ->
     ].
 
 
-event(SearchTask) when SearchTask==search_by_tag;
-                       SearchTask==search_by_date ->
-    NoteType = wf:q(note_type),
+event({SearchTask, NoteType}) when SearchTask==search_by_tag;
+                                   SearchTask==search_by_date ->
     Records = records_from_task(NoteType, SearchTask),
     wf:update(search_results, search_results(Records));
 event({add_note, NoteType}) ->
