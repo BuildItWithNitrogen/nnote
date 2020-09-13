@@ -67,10 +67,10 @@ form(ID, UserID, NoteType, Date, Event, Source, Topic,
         #is_required{text="Topic required"}]}),
     wf:defer(save_note, note, #validate{validators=[
         #is_required{text="Note required"}]}),
-    wf:defer(save_note, event, #validate{validators=[
-        #is_required{text="Event required"}]}),
-    wf:defer(save_note, source, #validate{validators=[
-        #is_required{text="Source required"}]}),
+    ?WF_IF(ShowEvent, wf:defer(save_note, event, #validate{validators=[
+        #is_required{text="Event required"}]})),
+    ?WF_IF(ShowSource, wf:defer(save_note, source, #validate{validators=[
+        #is_required{text="Source required"}]})),
 
     [ #label{text="Date"},
       n_dates:datepicker(date, Date),
@@ -183,6 +183,7 @@ event({select, NoteType}) ->
 %% Save Event
 %% ***************************************************
 event({save_note, ID, UserID, NoteType}) ->
+    io:format("Save~n"),
     wf:wire(#confirm{text="Save?",
                      postback={confirm_save, ID, UserID, NoteType}});
 event({confirm_save, ID, UserID, NoteType}) ->
