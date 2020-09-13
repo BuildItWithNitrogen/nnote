@@ -37,12 +37,12 @@ content(#{note_type:=undefined, task:=undefined}) ->
      #p{text="Select note type."}
     ];
 content(#{note_type:=NoteType, task:=Task}) ->
-    Records = case Task of
-                  undefined -> undefined;
-                  search_by_tag -> tag_search(NoteType);
-                  search_by_date -> date_search(NoteType)
-              end,
+    Records = records_from_task(NoteType, Task),
     display_forms(NoteType, Records).
+
+records_from_task(_, undefined) -> undefined;
+records_from_task(NoteType, search_by_tag) -> tag_search(NoteType);
+records_from_task(NoteType, search_by_date) -> date_search(NoteType).
 
 tag_search(NoteType) ->
     UserID = n_utils:get_user_id(),
@@ -76,7 +76,7 @@ display_forms(NoteType, Records) ->
      add_note_button(NoteType),
      search_by_tag(),
      search_by_date(),
-     search_results(Records)
+     #panel{id=search_results, body=search_results(Records)}
     ].
 
 
@@ -143,14 +143,11 @@ side_menu("NOTE TYPE") ->
     ].
 
 
-event(search_by_tag) ->
+event(SearchTask) when SearchTask==search_by_tag;
+                       SearchTask==search_by_date ->
     NoteType = wf:q(note_type),
-    Content = content(#{note_type=>NoteType, task=>search_by_tag}),
-    wf:update(content, Content);
-event(search_by_date) ->
-    NoteType = wf:q(note_type),
-    Content = content(#{note_type=>NoteType, task=>search_by_date}),
-    wf:update(content, Content);
+    Records = records_from_task(NoteType, SearchTask),
+    wf:update(search_results, search_results(Records));
 event({add_note, NoteType}) ->
     Redirect=["/nnote/add_edit?",
               wf:to_qs([{id,"new"}, {note_type,NoteType}])],
