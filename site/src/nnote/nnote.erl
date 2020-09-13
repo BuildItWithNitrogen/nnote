@@ -10,7 +10,7 @@
 -define(MMSELECTED, "nnote").
 -define(TITLE, "Welcome to nnote!").
 -define(TOP, "nnote").
-url_vars() -> [id, note_type, {task, atom}].
+url_vars() -> [id, {note_type, atom}, {task, atom}].
 
 %% ***************************************************
 %% Template and Title
