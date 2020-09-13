@@ -136,6 +136,15 @@ event({add_note, NoteType}) ->
     Redirect=["/nnote/add_edit?",
               wf:to_qs([{id,"new"}, {note_type,NoteType}])],
     wf:redirect(Redirect);
+
+event({delete, ID, Wrapperid}) ->
+        wf:wire(#confirm{text="Really delete this note?",
+                         postback={confirm_delete, ID, Wrapperid}});
+
+event({confirm_delete, ID, Wrapperid}) ->
+        wf:remove(Wrapperid),
+            nnote_api:delete(ID);
+
 %% ***************************************************
 %% Info events
 %% ***************************************************
