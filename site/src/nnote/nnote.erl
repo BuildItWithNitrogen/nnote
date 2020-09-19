@@ -12,6 +12,8 @@
 -define(TOP, "nnote").
 url_vars() -> [id, {note_type, atom}, {task, atom}].
 
+access() -> private.
+
 %% ***************************************************
 %% Template and Title
 %% ***************************************************

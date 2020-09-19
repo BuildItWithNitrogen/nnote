@@ -12,6 +12,8 @@
 -define(TOP, "Build it with Nitrogen").
 url_vars() -> [id, note_type, task].
 
+access() -> public.
+
 %% ***************************************************
 %% Template and Title
 %% ***************************************************
