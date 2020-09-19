@@ -7,7 +7,8 @@
         ]).
 
 init_tables() ->
-    nnote_db_mnesia:init_table().
+    nnote_db_mnesia:init_table(),
+    account_db_mnesia:init_table().
 
 one_time() ->
     schema(),
