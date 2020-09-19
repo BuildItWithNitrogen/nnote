@@ -73,11 +73,14 @@ tips() ->
          modification under the MIT License."}
     ].
 
-%% ***************************************************
-%% Sidebar events
-%% ***************************************************
-event({goto, Link}) ->
-    wf:redirect(Link).
+
+event(save) ->
+    [Username, Email, Password] = wf:mq([username, email, password]),
+    Record = account_api:new_account(Username, Email, Password),
+    UserID = account_api:id(Record),
+    wf:user(UserID),
+    wf:session(username, Username),
+    wf:redirect_from_login("/").
 
 %% ***************************************************
 %% Sidebar executives
