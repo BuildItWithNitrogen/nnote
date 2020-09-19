@@ -29,5 +29,6 @@ init([]) ->
     application:start(crypto),
     application:start(nprocreg),
     application:start(simple_bridge),
+    application:ensure_all_started(erlpass),
 
     {ok, { {one_for_one, 5, 10}, []} }.
