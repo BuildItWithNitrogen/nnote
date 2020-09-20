@@ -2,9 +2,9 @@
 -include_lib("nitrogen_core/include/wf.hrl").
 -compile(export_all).
 
-get_nickname() -> "Marsha".
+get_nickname() -> wf:session(username).
 
-get_user_id() -> "123".
+get_user_id() -> wf:user().
 
 create_id() ->
     Rand = rand:uniform(1000000000),

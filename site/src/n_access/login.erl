@@ -123,10 +123,15 @@ event(signin) ->
 %% ***************************************************
 %% Sidebar executives
 %% ***************************************************
+
+logged_in_msg(undefined) -> "Not Logged In";
+logged_in_msg(Username) -> ["Logged In as ",Username].
+
 sidebar(#{}) ->
-    SignedOut = (wf:user()==undefined),
+    SignedOut = (n_utils:get_user_id()==undefined),
+    Username = n_utils:get_nickname(),
     [
-     #h2{text="Account Menu"},
+     #h2{text=logged_in_msg(Username)},
      #button{show_if=SignedOut, text="Create Account",
              postback={open, create}},
      #br{},
