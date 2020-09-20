@@ -1,5 +1,5 @@
 %% -*- mode: nitrogen -*-
--module (register).
+-module (login).
 -compile(export_all).
 -behavior(n_apps).
 -include_lib("nitrogen_core/include/wf.hrl").
@@ -10,7 +10,7 @@
 -define(MMSELECTED, "home").
 -define(TITLE, "Registration Page").
 -define(TOP, "Build it with Nitrogen").
-url_vars() -> [].
+url_vars() -> [{task, atom}].
 
 access() -> public.
 
@@ -34,8 +34,13 @@ top() ->
 main_menu() ->
     n_menus:show_main_menu(?MMSELECTED).
 
-content(#{}) ->
-    new_account_form().
+content(#{task:=undefined}) ->
+    #h3{text="Choose an option from the left"};
+content(#{task:=create}) ->
+    new_account_form();
+content(#{task:=signin}) ->
+    signin_form().
+
 
 new_account_form() ->
     wf:defer(save, username, #validate{validators=[
@@ -60,6 +65,21 @@ new_account_form() ->
      #button{id=save, text="Save Account", postback=save}
     ].
 
+signin_form() ->
+    wf:defer(signin, username, #validate{validators=[
+        #is_required{text="Username Required"}]}),
+    wf:defer(signin, password, #validate{validators=[
+        #is_required{text="Password required"}]}),
+    [
+     #h1{body="Sign In"},
+     #label{text="Username"},
+     #textbox{id=username},
+     #label{text="Password"},
+     #password{id=password},
+     #br{},
+     #button{id=signin, text="Sign In", postback=signin}
+    ].
+
 %% ***************************************************
 %% Tips
 %% ***************************************************
@@ -73,20 +93,47 @@ tips() ->
          modification under the MIT License."}
     ].
 
-
+event({open, Task}) ->
+    UrlVars = #{task=>Task},
+    wf:update(content, content(UrlVars));
+event(logout) ->
+    UrlVars = #{task=>undefined},
+    wf:logout(),
+    wf:update(content, content(UrlVars)),
+    wf:update(sidebar, sidebar(UrlVars));
 event(save) ->
     [Username, Email, Password] = wf:mq([username, email, password]),
     Record = account_api:new_account(Username, Email, Password),
     UserID = account_api:id(Record),
     wf:user(UserID),
     wf:session(username, Username),
-    wf:redirect_from_login("/").
+    wf:redirect_from_login("/");
+event(signin) ->
+    [Username, Password] = wf:mq([username, password]),
+    case account_api:attempt_login(Username, Password) of
+        undefined ->
+            wf:flash("No Matching Username or Password. Please Try Again");
+        Record ->
+            UserID = account_api:id(Record),
+            wf:user(UserID),
+            wf:session(username, Username),
+            wf:redirect_from_login("/")
+    end.
 
 %% ***************************************************
 %% Sidebar executives
 %% ***************************************************
 sidebar(#{}) ->
-    [].
+    SignedOut = (wf:user()==undefined),
+    [
+     #h2{text="Account Menu"},
+     #button{show_if=SignedOut, text="Create Account",
+             postback={open, create}},
+     #br{},
+     #button{show_if=SignedOut, text="Sign In", postback={open, signin}},
+     #br{},
+     #button{show_if=not(SignedOut), text="Log Out", postback=logout}
+    ].
 
 
 
